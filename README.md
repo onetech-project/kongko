@@ -1,6 +1,8 @@
 # Kongko
 
-Let's chat and build the network
+Let's chat and build the network!!!
+
+**Kongko** is a Web App for Chat that are built with NodeJS, ExpressJS, and Socket.IO.
 
 ## Prerequisites
 * IDE (ie: VS CODE)
