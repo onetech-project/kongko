@@ -1,9 +1,9 @@
-const formatMessage = require('./messages');
+const messages = require('./messages');
 const users = require('./users');
 const encryption = require('./encryption');
 
 module.exports = {
-	formatMessage,
+	...messages,
 	...users,
 	...encryption,
 }

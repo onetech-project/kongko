@@ -27,8 +27,20 @@ socket.on("roomUsers", (data) => {
 // Message from server
 socket.on("message", (data) => {
   const message = decrypt(data);
-  console.log(message);
   outputMessage(message);
+
+  // Scroll down
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+});
+
+// Chat history from server
+socket.on("chatHistory", (data) => {
+  if (data && data.length) {
+    for (datum in data) {
+      const message = decrypt(data[datum]);
+      outputMessage(message);
+    }
+  }
 
   // Scroll down
   chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -37,7 +49,7 @@ socket.on("message", (data) => {
 // Message submit
 chatForm.addEventListener("submit", (e) => {
   e.preventDefault();
-  
+
   // Get message text
   let msg = e.target.elements.msg.value;
 
@@ -66,7 +78,6 @@ function outputMessage(message) {
   div.appendChild(p);
   if (isBase64(message.text)) {
     const img = document.createElement("img");
-    // img.classList.add("text");
     img.src = message.text;
     div.appendChild(img);
   } else {
@@ -159,7 +170,11 @@ function readURL(input) {
       reader.onload = function (e) {
         socket.emit("chatMessage", encrypt(e.target.result));
       };
-      reader.readAsDataURL(input.files[i]);
+      if (input.files[i].size > 1024000) {
+        compressImage(input.files[i], (compressedFile) => reader.readAsDataURL(compressedFile));
+      } else {
+        reader.readAsDataURL(input.files[i]);
+      }
     }
   }
 }
@@ -174,5 +189,26 @@ function isBase64(message) {
     valid = false;
   } finally {
     return valid;
+  }
+}
+
+// compress image
+function compressImage(image, callback) {
+  try {
+    const img = new Image();
+    img.src = URL.createObjectURL(image);
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      canvas.toBlob((blob) => {
+        const compressedFile = new File([blob], 'compressed.jpeg');
+        callback(compressedFile);
+      }, 'image/jpeg', 0.3)
+    } 
+  } catch (error) {
+    
   }
 }

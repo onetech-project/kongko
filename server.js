@@ -8,6 +8,8 @@ const {
   userLeave,
   getRoomUsers,
   formatMessage,
+  getMessageHistory,
+  saveMessageHistory,
   encrypt,
   decrypt
 } = require('./utils');
@@ -36,14 +38,14 @@ io.on('connection', socket => {
     socket.join(user.room);
 
     // Welcome current user
-    socket.emit('message', encrypt(formatMessage(botName, `Welcome to ${botName}`)));
+    // socket.emit('message', encrypt(formatMessage(botName, `Welcome to ${botName}`)));
 
     // Broadcast when a user connects
     socket.broadcast
       .to(user.room)
       .emit(
         'message',
-        encrypt(formatMessage(botName, `${user.username} has joined the chat`))
+        encrypt(formatMessage(botName, `${user.username} has joined the chat`, user.room))
       );
 
     // Send users and room info
@@ -51,14 +53,23 @@ io.on('connection', socket => {
       room: user.room,
       users: getRoomUsers(user.room)
     }));
+
+    // Send chat history
+    io.to(socket.id).emit('chatHistory', getMessageHistory(user.room));
   });
 
   // Listen for chatMessage
   socket.on('chatMessage', msg => {
-    const decryptedMsg = decrypt(msg);
-    const user = getCurrentUser(socket.id);
-
-    io.to(user.room).emit('message', encrypt(formatMessage(user.username, decryptedMsg)));
+    try {
+      const decryptedMsg = decrypt(msg);
+      const user = getCurrentUser(socket.id);
+      const formatted = formatMessage(user.username, decryptedMsg, user.room);
+      saveMessageHistory(encrypt(formatted));
+  
+      io.to(user.room).emit('message', encrypt(formatted));
+    } catch (error) {
+      io.to(socket.id).emit('message', encrypt(formatMessage(botName, 'Cannot send message!!! 500', '')));
+    }
   });
 
   // Runs when client disconnects
@@ -68,7 +79,7 @@ io.on('connection', socket => {
     if (user) {
       io.to(user.room).emit(
         'message',
-        encrypt(formatMessage(botName, `${user.username} has left the chat`))
+        encrypt(formatMessage(botName, `${user.username} has left the chat`, user.room))
       );
 
       // Send users and room info
