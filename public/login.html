@@ -28,6 +28,8 @@
 							id="username"
 							placeholder="Enter username..."
 							required
+							pattern="[A-Za-z0-9]{8,}"
+							title="only alphabet and number allowed with minimum length is 8"
 						/>
 					</div>
 					<div class="form-control">
@@ -36,8 +38,10 @@
 							type="text"
 							name="room"
 							id="room"
-							placeholder="Enter room name..."
+							placeholder="Enter roomname..."
 							required
+							pattern="[A-Za-z0-9]{6,}"
+							title="only alphabet and number allowed with minimum length is 6"
 						/>
 					</div>
 					<button type="submit" class="btn">Join Chat</button>

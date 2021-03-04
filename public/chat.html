@@ -15,7 +15,7 @@
   <body>
     <div class="chat-container">
       <header class="chat-header">
-        <h1 id="logo"><i class="fas fa-smile"></i> Kongko</h1>
+        <h1 id="logo"><i id="icon"></i> Kongko</h1>
         <a id="leave-btn" class="btn">Leave Room</a>
       </header>
       <main class="chat-main">
@@ -36,7 +36,16 @@
             required
             autocomplete="off"
           />
-          <button class="btn"><i class="fas fa-paper-plane"></i> Send</button>
+          <input 
+            type="file" 
+            id="imgupload" 
+            style="display:none" 
+            accept="image/gif, image/jpeg, image/png"
+            multiple
+            onchange="readURL(this)"
+          />
+          <label for='imgupload' class="btn"><div><i class="fas fa-camera"></i></div></label>
+          <button class="btn"><i class="fas fa-paper-plane"></i></button>
         </form>
       </div>
     </div>
