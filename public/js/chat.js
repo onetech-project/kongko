@@ -1,4 +1,4 @@
-import { compressImage, decrypt, encrypt, getRoomname, getUsername, isBase64 } from './main.js';
+import { compressImage, decrypt, encrypt, getRoomname, getUsername, isBase64, checkNotificationPermission, playAudioNotification } from './main.js';
 
 const chatForm = document.getElementById("chat-form");
 const chatMessages = document.querySelector(".chat-messages");
@@ -25,6 +25,7 @@ socket.on("roomUsers", (data) => {
 // Message from server
 socket.on("message", (data) => {
   const message = decrypt(data);
+  checkNotificationPermission({ title: message.username, body: message.text });
   outputMessage(message);
 
   // Scroll down
@@ -88,6 +89,7 @@ function outputMessage(message) {
     const para = document.createElement("p");
     para.classList.add("text");
     if (message.username === username) para.setAttribute('style', 'color: white;');
+    else if (message.username.toUpperCase() !== document.title.toUpperCase()) playAudioNotification();
     para.innerText = message.text;
     div.appendChild(para);
   }
