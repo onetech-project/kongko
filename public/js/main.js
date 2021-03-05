@@ -121,6 +121,27 @@ function checkNotificationPermission({ title, body }) {
   }
 }
 
+// Show image modal
+function showImageModal(base64) {
+  const modal = document.createElement('div');
+  modal.classList.add('modal');
+  modal.style.display = 'block';
+
+  const closeButton = document.createElement('span');
+  closeButton.classList.add('close');
+  closeButton.innerHTML = '&times;';
+  closeButton.onclick = () => document.body.removeChild(modal);
+
+  const content = document.createElement('img');
+  content.classList.add('modal-content');
+  content.src = base64;
+
+  modal.appendChild(closeButton);
+  modal.appendChild(content);
+
+  document.body.appendChild(modal);
+}
+
 export {
   getRoomname,
   getUsername,
@@ -133,4 +154,5 @@ export {
   showNotification,
   checkNotificationPermission,
   playAudioNotification,
+  showImageModal,
 };

@@ -1,4 +1,14 @@
-import { compressImage, decrypt, encrypt, getRoomname, getUsername, isBase64, checkNotificationPermission, playAudioNotification } from './main.js';
+import {
+  compressImage,
+  decrypt,
+  encrypt,
+  getRoomname,
+  getUsername,
+  isBase64,
+  checkNotificationPermission,
+  playAudioNotification,
+  showImageModal,
+} from "./main.js";
 
 const chatForm = document.getElementById("chat-form");
 const chatMessages = document.querySelector(".chat-messages");
@@ -70,9 +80,12 @@ chatForm.addEventListener("submit", (e) => {
 function outputMessage(message) {
   const div = document.createElement("div");
   div.classList.add(message.username === username ? "message-self" : "message");
-  
+
   if (message.username.toUpperCase() === document.title.toUpperCase()) {
-    div.setAttribute('style', 'background-color: rgba(0,0,0,0.1); margin-inline: auto;')
+    div.setAttribute(
+      "style",
+      "background-color: rgba(0,0,0,0.1); margin-inline: auto;"
+    );
   } else {
     const p = document.createElement("p");
     p.classList.add("meta");
@@ -84,12 +97,15 @@ function outputMessage(message) {
   if (isBase64(message.text)) {
     const img = document.createElement("img");
     img.src = message.text;
+    img.onclick = (e) => showImageModal(e.target.currentSrc);
     div.appendChild(img);
   } else {
     const para = document.createElement("p");
     para.classList.add("text");
-    if (message.username === username) para.setAttribute('style', 'color: white;');
-    else if (message.username.toUpperCase() !== document.title.toUpperCase()) playAudioNotification();
+    if (message.username === username)
+      para.setAttribute("style", "color: white;");
+    else if (message.username.toUpperCase() !== document.title.toUpperCase())
+      playAudioNotification();
     para.innerText = message.text;
     div.appendChild(para);
   }
@@ -153,20 +169,22 @@ window.addEventListener("resize", () => {
     );
 });
 
-document.getElementById('imgupload').addEventListener('change', (input) => {
+document.getElementById("imgupload").addEventListener("change", (input) => {
   readURL(input.currentTarget);
-})
+});
 
 // send image to server
 function readURL(input) {
   if (input.files.length > 0) {
-    for (let i = 0;i < input.files.length;i++) {
+    for (let i = 0; i < input.files.length; i++) {
       var reader = new FileReader();
       reader.onload = function (e) {
         socket.emit("chatMessage", encrypt(e.target.result));
       };
       if (input.files[i].size > 1024000) {
-        compressImage(input.files[i], (compressedFile) => reader.readAsDataURL(compressedFile));
+        compressImage(input.files[i], (compressedFile) =>
+          reader.readAsDataURL(compressedFile)
+        );
       } else {
         reader.readAsDataURL(input.files[i]);
       }
