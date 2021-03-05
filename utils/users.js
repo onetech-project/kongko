@@ -28,9 +28,15 @@ function getRoomUsers(room) {
   return users.filter(user => user.room === room);
 }
 
+// Get user inside room
+function getUserInRoom(username, room) {
+  return users.find(user => user.room === room && user.username === username);
+}
+
 module.exports = {
   userJoin,
   getCurrentUser,
   userLeave,
-  getRoomUsers
+  getRoomUsers,
+  getUserInRoom
 };

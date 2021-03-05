@@ -1,154 +1,25 @@
-const chatForm = document.getElementById("chat-form");
-const chatMessages = document.querySelector(".chat-messages");
-const roomName = document.getElementById("room-name");
-const userList = document.getElementById("users");
-
-// Get username and room from localstorage
-const username = localStorage.getItem("username");
-const room = localStorage.getItem("roomname");
 const key = "hbghjrbjgb7";
+const errorText = "Cannot send message. Please try again";
 
-if (!username || !room) {
-  window.location = "../index.html";
+// Get roomname from localstorage
+function getRoomname() {
+	return localStorage.getItem("roomname");
 }
 
-const socket = io();
-
-// Join chatroom
-socket.emit("joinRoom", encrypt({ username, room }));
-
-// Get room and users
-socket.on("roomUsers", (data) => {
-  const { room, users } = decrypt(data);
-  outputRoomName(room);
-  outputUsers(users);
-});
-
-// Message from server
-socket.on("message", (data) => {
-  const message = decrypt(data);
-  outputMessage(message);
-
-  // Scroll down
-  chatMessages.scrollTop = chatMessages.scrollHeight;
-});
-
-// Chat history from server
-socket.on("chatHistory", (data) => {
-  if (data && data.length) {
-    for (datum in data) {
-      const message = decrypt(data[datum]);
-      outputMessage(message);
-    }
-  }
-
-  // Scroll down
-  chatMessages.scrollTop = chatMessages.scrollHeight;
-});
-
-// Message submit
-chatForm.addEventListener("submit", (e) => {
-  e.preventDefault();
-
-  // Get message text
-  let msg = e.target.elements.msg.value;
-
-  msg = msg.trim();
-
-  if (!msg) {
-    return false;
-  }
-
-  // Emit message to server
-  socket.emit("chatMessage", encrypt(msg));
-
-  // Clear input
-  e.target.elements.msg.value = "";
-  e.target.elements.msg.focus();
-});
-
-// Output message to DOM
-function outputMessage(message) {
-  const div = document.createElement("div");
-  div.classList.add("message");
-  const p = document.createElement("p");
-  p.classList.add("meta");
-  p.innerText = message.username;
-  p.innerHTML += `<span>${message.time}</span>`;
-  div.appendChild(p);
-  if (isBase64(message.text)) {
-    const img = document.createElement("img");
-    img.src = message.text;
-    div.appendChild(img);
-  } else {
-    const para = document.createElement("p");
-    para.classList.add("text");
-    para.innerText = message.text;
-    div.appendChild(para);
-  }
-  document.querySelector(".chat-messages").appendChild(div);
+// Get username from localstorage
+function getUsername() {
+	return localStorage.getItem("username");
 }
 
-// Add room name to DOM
-function outputRoomName(room) {
-  roomName.innerText = room;
+// Set username to localstorage
+function setUsername(username) {
+	localStorage.setItem('username', username);
 }
 
-// Add users to DOM
-function outputUsers(users) {
-  userList.innerHTML = "";
-  users.forEach((user) => {
-    const li = document.createElement("li");
-    li.innerText = user.username;
-    userList.appendChild(li);
-  });
+// Set roomname to localstorage
+function setRoomname(roomname) {
+	localStorage.setItem('roomname', roomname);
 }
-
-function login(e) {
-  console.log(e);
-}
-
-// Prompt the user before leave chat room
-document.getElementById("leave-btn").addEventListener("click", () => {
-  const leaveRoom = confirm("Are you sure you want to leave the chatroom?");
-  if (leaveRoom) {
-    window.location = "../login.html";
-    localStorage.removeItem("username");
-    localStorage.removeItem("roomname");
-  }
-});
-
-// Open sidebar if screen width <= 700px
-document.getElementById("logo").addEventListener("click", () => {
-  if (window.innerWidth <= 700) {
-    const sidebar = document.getElementsByClassName("chat-sidebar")[0];
-    sidebar.style.display =
-      sidebar.style.display === "none" || !sidebar.style.display
-        ? "block"
-        : "none";
-  }
-});
-
-document.addEventListener("DOMContentLoaded", () => {
-  document
-    .getElementById("icon")
-    .setAttribute(
-      "class",
-      window.innerWidth > 700 ? "fas fa-smile" : "fas fa-bars"
-    );
-});
-
-// always show sidebar if screen width > 700px
-window.addEventListener("resize", () => {
-  const sidebar = document.getElementsByClassName("chat-sidebar")[0];
-  sidebar.style.display = window.innerWidth > 700 ? "block" : "none";
-  document
-    .getElementById("icon")
-    .setAttribute(
-      "class",
-      window.innerWidth > 700 ? "fas fa-smile" : "fas fa-bars"
-    );
-});
 
 // encrypt message to server
 function encrypt(msg) {
@@ -160,23 +31,6 @@ function decrypt(encryptedMsg) {
   return JSON.parse(
     CryptoJS.AES.decrypt(encryptedMsg, key).toString(CryptoJS.enc.Utf8)
   );
-}
-
-// send image to server
-function readURL(input) {
-  if (input.files.length > 0) {
-    for (let i = 0;i < input.files.length;i++) {
-      var reader = new FileReader();
-      reader.onload = function (e) {
-        socket.emit("chatMessage", encrypt(e.target.result));
-      };
-      if (input.files[i].size > 1024000) {
-        compressImage(input.files[i], (compressedFile) => reader.readAsDataURL(compressedFile));
-      } else {
-        reader.readAsDataURL(input.files[i]);
-      }
-    }
-  }
 }
 
 // base64 checker
@@ -204,11 +58,27 @@ function compressImage(image, callback) {
       const ctx = canvas.getContext('2d');
       ctx.drawImage(img, 0, 0);
       canvas.toBlob((blob) => {
-        const compressedFile = new File([blob], 'compressed.jpeg');
+        const compressedFile = new File([blob], `${new Date().getTime()}.jpeg`);
         callback(compressedFile);
       }, 'image/jpeg', 0.3)
     } 
   } catch (error) {
-    
+    outputMessage({ username: document.title, text: errorText, time: getTime12HourFormat() })
   }
+}
+
+// Get time 12 hour format
+function getTime12HourFormat() {
+  return new Date().toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+}
+
+export {
+	getRoomname,
+	getUsername,
+	setRoomname,
+	setUsername,
+	encrypt,
+	decrypt,
+	compressImage,
+	isBase64,
 }

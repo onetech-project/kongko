@@ -5,6 +5,7 @@ const socketio = require('socket.io');
 const {
   userJoin,
   getCurrentUser,
+  getUserInRoom,
   userLeave,
   getRoomUsers,
   formatMessage,
@@ -31,6 +32,15 @@ app.get('/', (req, res) => {
 
 // Run when client connects
 io.on('connection', socket => {
+  
+  // check username if already in use inside the room
+  socket.on('checkUsername', (data) => {
+    const { username, room } = decrypt(data);
+    const user = getUserInRoom(username, room);
+    io.to(socket.id).emit('isUsernameValid', encrypt(!user));
+  })
+
+  // join room
   socket.on('joinRoom', (data) => {
     const { username, room } = decrypt(data);
     const user = userJoin(socket.id, username, room);
@@ -68,7 +78,7 @@ io.on('connection', socket => {
   
       io.to(user.room).emit('message', encrypt(formatted));
     } catch (error) {
-      io.to(socket.id).emit('message', encrypt(formatMessage(botName, 'Cannot send message!!! 500', '')));
+      io.to(socket.id).emit('message', encrypt(formatMessage(botName, 'Cannot send message. Please try again"', '')));
     }
   });
 
