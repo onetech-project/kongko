@@ -2,12 +2,11 @@ import {
   compressImage,
   decrypt,
   encrypt,
-  getRoomname,
-  getUsername,
   isBase64,
   checkNotificationPermission,
   playAudioNotification,
   showImageModal,
+  httpRequest,
 } from "./main.js";
 
 const chatForm = document.getElementById("chat-form");
@@ -15,15 +14,18 @@ const chatMessages = document.querySelector(".chat-messages");
 const roomName = document.getElementById("room-name");
 const userList = document.getElementById("users");
 const socket = io();
-const username = getUsername();
-const room = getRoomname();
 
-if (!username || !room) {
+// Get username and room from URL
+const data = localStorage.getItem("data");
+
+if (!data) {
   window.location = "../";
 }
 
+const { username, room } = decrypt(data);
+
 // Join chatroom
-socket.emit("joinRoom", encrypt({ username, room }));
+socket.emit("joinRoom", data);
 
 // Get room and users
 socket.on("roomUsers", (data) => {
@@ -35,7 +37,11 @@ socket.on("roomUsers", (data) => {
 // Message from server
 socket.on("message", (data) => {
   const message = decrypt(data);
-  checkNotificationPermission({ title: message.username, body: message.text });
+  if (message.username !== username)
+    checkNotificationPermission({
+      title: message.username || "Kongko",
+      body: message.text || "New Message",
+    });
   outputMessage(message);
 
   // Scroll down
@@ -53,6 +59,10 @@ socket.on("chatHistory", (data) => {
 
   // Scroll down
   chatMessages.scrollTop = chatMessages.scrollHeight;
+});
+
+socket.on("unauthorized", () => {
+  window.location = "../";
 });
 
 // Message submit
@@ -131,9 +141,15 @@ function outputUsers(users) {
 document.getElementById("leave-btn").addEventListener("click", () => {
   const leaveRoom = confirm("Are you sure you want to leave the chatroom?");
   if (leaveRoom) {
-    window.location = "../login.html";
-    localStorage.removeItem("username");
-    localStorage.removeItem("roomname");
+    httpRequest({ endpoint: "logout", data: { username, room } }).then(
+      (res) => {
+        if (res.success) {
+          localStorage.removeItem("data");
+          window.location = "../";
+        }
+      },
+      (err) => console.log(err)
+    );
   }
 });
 

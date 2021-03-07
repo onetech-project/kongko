@@ -3,24 +3,29 @@ const errorText = "Cannot send message. Please try again";
 const audio = new Audio("../assets/notification.mp3");
 
 // Get roomname from localstorage
-function getRoomname() {
-  return localStorage.getItem("roomname");
-}
+// function getRoomname() {
+//   return localStorage.getItem("roomname");
+// }
 
 // Get username from localstorage
-function getUsername() {
-  return localStorage.getItem("username");
-}
+// function getUsername() {
+//   return localStorage.getItem("username");
+// }
 
 // Set username to localstorage
-function setUsername(username) {
-  localStorage.setItem("username", username);
-}
+// function setUsername(username) {
+//   localStorage.setItem("username", username);
+// }
 
 // Set roomname to localstorage
-function setRoomname(roomname) {
-  localStorage.setItem("roomname", roomname);
-}
+// function setRoomname(roomname) {
+//   localStorage.setItem("roomname", roomname);
+// }
+
+/**
+ * username and room has stored in server side session
+ * due to lack of localstorage which insecured
+ */
 
 // encrypt message to server
 function encrypt(msg) {
@@ -101,21 +106,21 @@ function showNotification({ title, body }) {
   });
 
   notification.onclick = (e) => {
-    window.location.href = `${window.location.origin}/chat.html`;
+    window.location.href = window.location.origin;
   };
 }
 
 // Check notification permission
 function checkNotificationPermission({ title, body }) {
   switch (Notification.permission) {
-    case 'granted':
+    case "granted":
       showNotification({ title, body });
       break;
-    case 'denied':
+    case "denied":
       break;
     default:
       Notification.requestPermission().then(() => {
-        checkNotificationPermission()
+        checkNotificationPermission({ title, body });
       });
       break;
   }
@@ -123,17 +128,17 @@ function checkNotificationPermission({ title, body }) {
 
 // Show image modal
 function showImageModal(base64) {
-  const modal = document.createElement('div');
-  modal.classList.add('modal');
-  modal.style.display = 'block';
+  const modal = document.createElement("div");
+  modal.classList.add("modal");
+  modal.style.display = "block";
 
-  const closeButton = document.createElement('span');
-  closeButton.classList.add('close');
-  closeButton.innerHTML = '&times;';
+  const closeButton = document.createElement("span");
+  closeButton.classList.add("close");
+  closeButton.innerHTML = "&times;";
   closeButton.onclick = () => document.body.removeChild(modal);
 
-  const content = document.createElement('img');
-  content.classList.add('modal-content');
+  const content = document.createElement("img");
+  content.classList.add("modal-content");
   content.src = base64;
 
   modal.appendChild(closeButton);
@@ -142,11 +147,23 @@ function showImageModal(base64) {
   document.body.appendChild(modal);
 }
 
+const httpRequest = async ({ endpoint, data }) => {
+  const baseURL = `${location.origin}/`;
+  const url = `${baseURL}${endpoint}`;
+  const encryptedData = encrypt(data);
+  const res = await fetch(url, {
+    body: JSON.stringify({ encryptedData }),
+    method: "POST",
+    headers: { "Content-type": "application/json; charset=UTF-8" },
+  });
+  return await res.json();
+};
+
 export {
-  getRoomname,
-  getUsername,
-  setRoomname,
-  setUsername,
+  // getRoomname,
+  // getUsername,
+  // setRoomname,
+  // setUsername,
   encrypt,
   decrypt,
   compressImage,
@@ -155,4 +172,5 @@ export {
   checkNotificationPermission,
   playAudioNotification,
   showImageModal,
+  httpRequest,
 };
