@@ -30,8 +30,7 @@ dotenv.config();
 // From .env
 const botName = process.env.APPNAME;
 const PORT = process.env.PORT;
-const REDISHOST =
-  process.env.NODE_ENV === "production" ? process.env.HOST : "localhost";
+const REDISHOST = process.env.HOST;
 
 // Set static folder
 app.use(express.static(path.join(__dirname, "public")));

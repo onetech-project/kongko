@@ -18,6 +18,9 @@ RUN npm ci --only=production
 # Bundle app source
 COPY . .
 
+# minify client side code
+RUN node minify.js
+
 # Binds app to port 3000
 EXPOSE 3000
 

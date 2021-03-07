@@ -37,11 +37,15 @@ socket.on("roomUsers", (data) => {
 // Message from server
 socket.on("message", (data) => {
   const message = decrypt(data);
-  if (message.username !== username)
+  if (message.username !== username) {
+    playAudioNotification();
     checkNotificationPermission({
       title: message.username || "Kongko",
-      body: message.text || "New Message",
+      body: isBase64(message.text)
+        ? `${message.username} has sent an image`
+        : message.text,
     });
+  }
   outputMessage(message);
 
   // Scroll down
@@ -114,8 +118,6 @@ function outputMessage(message) {
     para.classList.add("text");
     if (message.username === username)
       para.setAttribute("style", "color: white;");
-    else if (message.username.toUpperCase() !== document.title.toUpperCase())
-      playAudioNotification();
     para.innerText = message.text;
     div.appendChild(para);
   }

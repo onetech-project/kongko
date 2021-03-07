@@ -2,18 +2,11 @@ const fs = require("fs");
 const minify = require("minify");
 
 const options = {
-  html: {
-    removeAttributeQuotes: false,
-    removeOptionalTags: false,
-  },
   css: {
     compatibility: "*",
   },
   js: {
     ecma: 5,
-  },
-  img: {
-    maxSize: 4096,
   },
 };
 
@@ -30,9 +23,7 @@ const minifyCode = (path) => {
         if (err) throw err;
         if (
           stat.isFile() &&
-          (innerPath.includes("js") ||
-            innerPath.includes("html") ||
-            innerPath.includes("css"))
+          (innerPath.includes("js") || innerPath.includes("css"))
         ) {
           // console.log(fs.readFileSync(innerPath, { encoding: "utf-8" }));
           minify(innerPath, options)
