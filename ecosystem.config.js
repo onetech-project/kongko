@@ -7,6 +7,8 @@ module.exports = {
       autorestart: true,
       watch: true,
       max_memory_restart: "1G",
+      out_file: "../log/app.log",
+      error_file: "../log/err.log",
       env: {
         NODE_ENV: "development",
       },

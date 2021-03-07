@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "build": "docker build -t onetechproject/kongko . && docker run --rm -dp 80:3000 onetechproject/kongko --name Kongko"
+    "build": "docker stop Kongko && docker rm Kongko && docker build -t onetechproject/kongko . && docker run --name Kongko -dp 80:3000 onetechproject/kongko"
   },
   "repository": {
     "type": "git",
