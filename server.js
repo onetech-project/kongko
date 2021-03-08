@@ -205,5 +205,7 @@ io.on("connection", (socket) => {
 });
 
 server.listen(PORT, "0.0.0.0", () =>
-  console.log(`Server ${process.env.NODE_ENV} running on port ${PORT}`)
+  console.log(
+    `Server ${process.env.NODE_ENV} running on port ${PORT}. ENJOY!!!`
+  )
 );

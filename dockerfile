@@ -29,3 +29,5 @@ EXPOSE 3000
 
 # Run the app by CMD command
 CMD ["pm2-runtime", "ecosystem.config.js", "--env", "production"]
+
+# What's next?
