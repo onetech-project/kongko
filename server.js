@@ -31,7 +31,9 @@ dotenv.config();
 const botName = process.env.APPNAME;
 const PORT = process.env.PORT;
 const REDISHOST =
-  process.env.NODE_ENV === "production" ? process.env.HOST : "localhost";
+  process.env.NODE_ENV === "production" ? process.env.REDISHOST : "localhost";
+const REDISPORT =
+  process.env.NODE_ENV === "production" ? process.env.REDISPORT : "6379";
 
 // Set static folder
 app.use(express.static(path.join(__dirname, "public")));
@@ -43,17 +45,20 @@ const RedisStore = connectRedis(session);
 //Configure redis client
 const redisClient = redis.createClient({
   host: REDISHOST,
-  port: 6379,
+  port: REDISPORT,
 });
 
 // Do something when cannot connect to redis
 redisClient.on("error", function (err) {
-  console.log("Could not establish a connection with redis. " + err);
+  console.log(
+    "Could not establish a connection with redis. " + err,
+    `${REDISHOST}:${REDISPORT}`
+  );
 });
 
 // Do something when connected to redis
-redisClient.on("connect", function (err) {
-  console.log("Connected to redis successfully");
+redisClient.on("connect", function () {
+  console.log("Connected to redis successfully", `${REDISHOST}:${REDISPORT}`);
 });
 
 // Create session config
@@ -206,6 +211,6 @@ io.on("connection", (socket) => {
 
 server.listen(PORT, "0.0.0.0", () =>
   console.log(
-    `Server ${process.env.NODE_ENV} running on port ${PORT}. ENJOY!!!`
+    `${botName} ${process.env.NODE_ENV} running on port ${PORT}. ENJOY!!!`
   )
 );
