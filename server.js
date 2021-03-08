@@ -30,7 +30,8 @@ dotenv.config();
 // From .env
 const botName = process.env.APPNAME;
 const PORT = process.env.PORT;
-const REDISHOST = process.env.HOST;
+const REDISHOST =
+  process.env.NODE_ENV === "production" ? process.env.HOST : "localhost";
 
 // Set static folder
 app.use(express.static(path.join(__dirname, "public")));
@@ -80,7 +81,7 @@ io.use((socket, next) => {
 app.get("/", (req, res) => {
   // redirect user to chat page if session is still alive otherwise user have to login
   if (req.session.userdata) {
-    res.redirect(`/chat.html?data=${req.session.userdata}`);
+    res.redirect("/chat.html");
   } else {
     res.redirect("/login.html");
   }
@@ -204,5 +205,5 @@ io.on("connection", (socket) => {
 });
 
 server.listen(PORT, "0.0.0.0", () =>
-  console.log(`Server running on port ${PORT}`)
+  console.log(`Server ${process.env.NODE_ENV} running on port ${PORT}`)
 );
