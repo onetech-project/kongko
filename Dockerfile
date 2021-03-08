@@ -25,9 +25,6 @@ RUN node minify.js
 # Binds app to port 3000
 EXPOSE 3000
 
-# Create env file
-RUN echo "PORT=3000\nAPPNAME=KONGKO\nHOST=host.docker.internal" >> .env
-
 # Run the app by RUN Command
 # RUN pm2 start
 

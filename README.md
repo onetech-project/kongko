@@ -13,7 +13,7 @@ Let's chat and build the network!!!
 ## Run the project
 
 1. Clone the project and enter the cloned repo folder
-2. Create a file with name .env and copy this config below
+2. open .env file if you want to change the environtment variable and below is the content of this file
 
 ```
 PORT=3000 *you can change with number you want
