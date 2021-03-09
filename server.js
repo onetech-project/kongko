@@ -25,15 +25,13 @@ const io = socketio(server);
 const dotenv = require("dotenv");
 
 // Call .env value
-dotenv.config();
+if (process.env.NODE_ENV === "development") dotenv.config();
 
 // From .env
 const botName = process.env.APPNAME;
 const PORT = process.env.PORT;
-const REDISHOST =
-  process.env.NODE_ENV === "production" ? process.env.REDISHOST : "localhost";
-const REDISPORT =
-  process.env.NODE_ENV === "production" ? process.env.REDISPORT : "6379";
+const REDISHOST = process.env.REDISHOST;
+const REDISPORT = process.env.REDISPORT;
 
 // Set static folder
 app.use(express.static(path.join(__dirname, "public")));
