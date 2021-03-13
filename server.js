@@ -25,13 +25,14 @@ const io = socketio(server);
 const dotenv = require("dotenv");
 
 // Call .env value
-if (process.env.NODE_ENV === "development") dotenv.config();
+if (process.env.NODE_ENV.trim() === "development") dotenv.config();
 
 // From .env
 const botName = process.env.APPNAME;
 const PORT = process.env.PORT;
 const REDISHOST = process.env.REDISHOST;
 const REDISPORT = process.env.REDISPORT;
+const REDISPASSWORD = process.env.REDISPASSWORD;
 
 // Set static folder
 app.use(express.static(path.join(__dirname, "public")));
@@ -44,6 +45,7 @@ const RedisStore = connectRedis(session);
 const redisClient = redis.createClient({
   host: REDISHOST,
   port: REDISPORT,
+  password: REDISPASSWORD,
 });
 
 // Do something when cannot connect to redis

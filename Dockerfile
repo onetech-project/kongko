@@ -1,8 +1,4 @@
-# Add redis to image
-FROM redis:latest
-RUN "redis-server"
-
-FROM node:14
+FROM node:alpine
 
 # Install pm2 as node process manager
 RUN npm install pm2 -g

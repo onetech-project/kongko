@@ -11,9 +11,11 @@ module.exports = {
       error_file: "../log/err.log",
       env: {
         NODE_ENV: "production",
-        REDISHOST: "kongko.heroku.com",
-        REDISPORT: 6379,
-        APPNAME: "KONGKO",
+        REDISHOST: "ec2-54-195-32-196.eu-west-1.compute.amazonaws.com",
+        REDISPORT: 8039,
+        REDISPASSWORD:
+          "p777f484304be694552231beb56d4752d8f610bedbe078d9e37430c0d48d9a720",
+        APPNAME: "Kongko",
       },
     },
   ],
